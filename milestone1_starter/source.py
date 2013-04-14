@@ -34,17 +34,14 @@ class Source:
             else:               
                 # Send monotone (the payload is all 1s for 
                 # monotone bits)
-                print "monotone"
                 p = [1] * self.monotone
                 h = self.get_header(self.monotone, 'monotone')
+                print "header:", h
 
             # append header and payload as numpy array
             header = numpy.array(h)
             payload = numpy.array(p)
             databits = numpy.append(header, payload)
-            # print "header:", header
-            # print "payload:", payload
-            # print "databits:", databits
 
             return payload, databits
 
@@ -137,6 +134,8 @@ class Source:
 
         # payload to header
         payload = [int(x) for x in bin(payload_length)[2:]]
+        num_pad = 16 - len(payload)
+        header.extend([0] * num_pad)
         header.extend(payload)
 
         return header
