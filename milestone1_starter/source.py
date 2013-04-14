@@ -4,7 +4,8 @@ import Image
 from graphs import *
 import binascii
 import random
-from PIL import Image # import Python Imaging Library
+from PIL import Image # import Python Imaging Library        
+from scipy.misc import toimage # scipy
 
 class Source:
     def __init__(self, monotone, filename=None):
@@ -15,24 +16,21 @@ class Source:
 
     def process(self):
             # Form the databits, from the filename
-
             p = []
             h = []
 
-            print "self.fname:", self.fname
-
+            # if filename is provided
             if self.fname is not None:
                 if self.fname.endswith('.png') or self.fname.endswith('.PNG'):
                     # Its an image
-                    print "image"
                     p = self.bits_from_image(self.fname)
                     h = self.get_header(len(p), 'image')
-                    self.image_from_bits(p)
+                    # self.image_from_bits(p)
                 else:
                     # Assume it's text
-                    print "text"
                     p = self.text2bits(self.fname)
                     h = self.get_header(len(p), 'text')
+            # else send a monotone
             else:               
                 # Send monotone (the payload is all 1s for 
                 # monotone bits)
@@ -53,10 +51,13 @@ class Source:
     def image_from_bits(self, bits):
 
         pixels = []
+
+        # turning list of bits to matrix of bits
         for y in range(0,31):
             i = y * 32
             pixels.append(bits[i:i+31])
-        # print pixels
+
+        # convert to 0's and 255's
         for y in range(len(pixels)):
             row = pixels[y]
             for x in range(len(row)):
@@ -64,18 +65,14 @@ class Source:
                 if val == 1:
                     val = 255
                 pixels[y][x] = val
-        # print pixels
 
+        # convert pixels to image
         imd = numpy.array(pixels)
-        
-        from scipy.misc import toimage
         im = toimage(imd)
-
         im = im.convert('RGB')
         im.show()
 
     def bits2text(self, bits):
-
         # convert bits to text
         chars = []
         for b in range(len(bits) / 8):
@@ -92,8 +89,6 @@ class Source:
         f = open(filename, 'r')
         s = str(f.read())
         f.close()
-
-        # print "string:", s
 
         # converts string to binary
         result = []
