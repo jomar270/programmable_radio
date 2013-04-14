@@ -21,6 +21,9 @@ class Sink:
         # this array could be arbitrary. Make sure you truncate 
         # it (based on the payload length as mentioned in 
         # header) before converting into a file.
+
+        rcd_payload = recd_bits
+        print "recd_bits:", recd_bits
         
         # If its an image, save it as "rcd-image.png"
         # If its a text, just print out the text
@@ -30,7 +33,14 @@ class Sink:
 
     def bits2text(self, bits):
         # Convert the received payload to text (string)
-        return  text
+        chars = []
+        print "type:", type(bits)
+        for b in range(len(bits) / 8):
+            byte = bits[b*8:(b+1)*8]
+            chars.append(chr(int(''.join([str(bit) for bit in byte]), 2)))
+        text = ''.join(chars)
+
+        return text
 
     def image_from_bits(self, bits,filename):
         # Convert the received payload to an image and save it
