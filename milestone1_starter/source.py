@@ -4,8 +4,8 @@ import Image
 from graphs import *
 import binascii
 import random
-from PIL import Image # import Python Imaging Library        
-from scipy.misc import toimage # scipy
+from PIL import Image # need Python Imaging Library for images      
+from scipy.misc import toimage # need scipy for images 
 
 class Source:
     def __init__(self, monotone, filename=None):
@@ -14,29 +14,29 @@ class Source:
         self.fname = filename
         print 'Source: '
 
+    # form the databits, from filename
     def process(self):
-            # Form the databits, from the filename
+
+            # declare initial payload and header bit arrays
             p = []
             h = []
 
-            # if filename is provided
+            # if filename is provided, operate on PNG or TXT files
             if self.fname is not None:
+                # operate on PNG file
                 if self.fname.endswith('.png') or self.fname.endswith('.PNG'):
-                    # Its an image
                     p = self.bits_from_image(self.fname)
                     h = self.get_header(len(p), 'image')
-                    # self.image_from_bits(p)
+                # operate on TXT file
                 else:
-                    # Assume it's text
                     p = self.text2bits(self.fname)
                     h = self.get_header(len(p), 'text')
-            # else send a monotone
-            else:               
-                # Send monotone (the payload is all 1s for 
-                # monotone bits)
+            # else, send a monotone
+            else:
+                # send a monotone (payload of all 1s for monotone bits)
                 p = [1] * self.monotone
                 h = self.get_header(self.monotone, 'monotone')
-                print "header:", h
+                # print "header:", h
 
             # append header and payload as numpy array
             header = numpy.array(h)
@@ -45,42 +45,8 @@ class Source:
 
             return payload, databits
 
-    def image_from_bits(self, bits):
-
-        pixels = []
-
-        # turning list of bits to matrix of bits
-        for y in range(0,31):
-            i = y * 32
-            pixels.append(bits[i:i+31])
-
-        # convert to 0's and 255's
-        for y in range(len(pixels)):
-            row = pixels[y]
-            for x in range(len(row)):
-                val = row[x]
-                if val == 1:
-                    val = 255
-                pixels[y][x] = val
-
-        # convert pixels to image
-        imd = numpy.array(pixels)
-        im = toimage(imd)
-        im = im.convert('RGB')
-        im.show()
-
-    def bits2text(self, bits):
-        # convert bits to text
-        chars = []
-        for b in range(len(bits) / 8):
-            byte = bits[b*8:(b+1)*8]
-            chars.append(chr(int(''.join([str(bit) for bit in byte]), 2)))
-        text = ''.join(chars)
-
-        return text
-
+    # given a text file, convert to bits
     def text2bits(self, filename):
-        # Given a text file, convert to bits
 
         # convert file to string
         f = open(filename, 'r')
@@ -96,13 +62,11 @@ class Source:
 
         return result
 
+    # given an image, convert to bits
     def bits_from_image(self, filename):
-        # Given an image, convert to bits
 
-        # opens image using PIL
+        # opens image using PIL, convert to 8-bit numpy array
         im = Image.open(filename)
-
-        # converts image to 8-bit numpy array
         im = im.convert('L')
         imd = numpy.array(im)
 
@@ -118,13 +82,15 @@ class Source:
 
         return bits
 
-    def get_header(self, payload_length, srctype): 
-        # Given the payload length and the type of source 
-        # (image, text, monotone), form the header
+    # given payload length and the type of source
+    # (image, text, monotone)
+    # form the header
+    def get_header(self, payload_length, srctype):
 
+        # declare header bit array
         header = []
         
-        # srctype to header
+        # create header's sourcetype bits
         if (srctype == 'monotone'):
             header = [0,0]
         elif (srctype == 'text'):
@@ -132,7 +98,7 @@ class Source:
         elif (srctype == 'image'):
             header = [1,0]
 
-        # payload to header
+        # create header's payload bits
         payload = [int(x) for x in bin(payload_length)[2:]]
         num_pad = 16 - len(payload)
         header.extend([0] * num_pad)

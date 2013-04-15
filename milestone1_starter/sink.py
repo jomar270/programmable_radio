@@ -24,26 +24,32 @@ class Sink:
         # it (based on the payload length as mentioned in 
         # header) before converting into a file.
 
+        # get header bits and read header
         header_bits = recd_bits[0:18]
         srctype, payload_length = self.read_header(header_bits)
 
+        # we return rcd_payload but convert a copy of it 
+        # which we pas to image_from_bits and convert to 255s and 0s for our image
         rcd_payload = recd_bits[18:]
+        rcd_payload_copy = list(rcd_payload)
 
+        # based on source type, get bits
         if (srctype == 'monotone'):
             pass
         elif (srctype == 'text'):
+            # print text if text
             print self.bits2text(rcd_payload)
         else:
-            self.image_from_bits(rcd_payload, "rcd-image.png")
+            # save image if image
+            self.image_from_bits(rcd_payload_copy, "rcd-image.png")
         
-        # If its an image, save it as "rcd-image.png"
-        # If its a text, just print out the text
-        
-        # Return the received payload for comparison purposes
+        # return the received payload for comparison purposes
         return rcd_payload
 
+    # Convert the received payload to text (string)
     def bits2text(self, bits):
-        # Convert the received payload to text (string)
+
+        # convert binary to characters
         chars = []
         for b in range(len(bits) / 8):
             byte = bits[b*8:(b+1)*8]
@@ -52,10 +58,11 @@ class Sink:
 
         return text
 
+    # Convert the received payload to an image and save it
+    # No return value required.
     def image_from_bits(self, bits, filename):
-        # Convert the received payload to an image and save it
-        # No return value required .
 
+        # declare pixels matrix (list of lists)
         pixels = []
 
         # turning list of bits to matrix of bits
@@ -80,9 +87,9 @@ class Sink:
 
         pass 
 
-    def read_header(self, header_bits): 
-        # Given the header bits, compute the payload length
-        # and source type (compatible with get_header on source)
+    # Given the header bits, compute the payload length
+    # and source type (compatible with get_header on source)
+    def read_header(self, header_bits):
 
         # assigned values
         srctype = ''
@@ -94,9 +101,11 @@ class Sink:
         else:
             srctype = 'image'
 
+        # get header bits and payload length
         p = header_bits[2:]
         payload_length = int("".join(str(i) for i in p), 2)
 
+        # print values
         print '\tRecd header: ', header_bits
         print '\tLength from header: ', payload_length
         print '\tSource type: ', srctype
