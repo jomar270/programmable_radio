@@ -19,30 +19,11 @@ class Transmitter:
             [silence bits], [preamble bits], and [databits]
         '''
         
-        # silence bits
+        # concatenate silence bits, preamble bits, and databits
         silence_bits = numpy.zeros((self.silence,), dtype=numpy.int)
-        # print "silence:", silence_bits
-        # print type(silence_bits)
-        # print self.silence
-        # print silence_bits.size
-
-        # preamble bits
         preamble = [1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1]
         preamble_bits = numpy.array(preamble)
-        # print "preamble_bits:", preamble_bits
-        # print len(preamble)
-        # print preamble_bits.size
-
-        # data bits
-        # print "databits:", databits
-        # print type(databits)
-        # print databits.size
-
-        # concatenate silence bits, preamble bits, and databits
-        # databits_with_preamble = numpy.concatenate((silence_bits, preamble_bits))
         databits_with_preamble = numpy.concatenate((silence_bits, preamble_bits, databits))
-        # print "databits_with_preamble:", databits_with_preamble
-        # print databits_with_preamble.size
 
         return databits_with_preamble
 
