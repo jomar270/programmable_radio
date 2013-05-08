@@ -37,9 +37,10 @@ class Receiver:
         First, find the first sample index where you detect energy based on the
         moving average method described in the milestone 2 description.
         '''
-        # Fill in your implementation of the high-energy check procedure
 
-        energy_offset = # fill in the result of the high-energy check
+        # high-energy check procedure to get energy_offset
+        # energy_offset = # fill in the result of the high-energy check
+        energy_offset = 0
         if energy_offset < 0:
             print '*** ERROR: Could not detect any ones (so no preamble). ***'
             print '\tIncrease volume / turn on mic?'
@@ -51,9 +52,10 @@ class Receiver:
         the cross-correlation between the signal samples and the preamble 
         samples is the highest. 
         '''
-        # Fill in your implementation of the cross-correlation check procedure
-        
-        preamble_offset = # fill in the result of the cross-correlation check 
+
+        # cross-correlation check procedure to get preamble_offset
+        # preamble_offset = # fill in the result of the cross-correlation check 
+        preamble_offset = 0
         
         '''
         [preamble_offset] is the additional amount of offset starting from [offset],
@@ -76,7 +78,13 @@ class Receiver:
         Output is the array of data_bits (bits without preamble)
         '''
 
-        # Fill in your implementation
+        # demap demod_samples into bits
+        # average values of midpoints in samples
+        # use ave values and bit values of preamble to get threshold
+        # demap
+        # check preamble bits and continue if equal
+        data_bits = demod_samples
+        print "data_bits:", data_bits
 
         return data_bits # without preamble
 

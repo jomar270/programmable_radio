@@ -18,7 +18,12 @@ class Transmitter:
         The output should be the concatenation of arrays of
             [silence bits], [preamble bits], and [databits]
         '''
-        # fill in your implementation
+        
+        # silence bits
+        # preamble bits
+        databits_with_preamble = databits
+        print "databits_with_preamble:", databits_with_preamble
+
         return databits_with_preamble
 
 
@@ -28,7 +33,12 @@ class Transmitter:
         Sample values for bit '1', '0' should be [one], 0 respectively.
         Output should be an array of samples.
         '''
-        # fill in your implemenation
+
+        # convert bits to samples
+        # [one] and 0
+        samples = databits_with_preamble
+        print "samples:", samples
+        
         return samples
         
 

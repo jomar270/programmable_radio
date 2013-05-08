@@ -103,6 +103,11 @@ class Sink:
 
         # get header bits and payload length
         p = header_bits[2:]
+        # print "payload: ", p
+        # print p.astype(numpy.int64)
+        p = p.astype(numpy.int64) # converted numpy array of float64 to int64
+        # print type(p)
+        # print type(p[0])
         payload_length = int("".join(str(i) for i in p), 2)
 
         # print values
