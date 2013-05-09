@@ -33,8 +33,6 @@ class Receiver:
         is crucial to a proper and correct synchronization w/ the xmitter.
         '''
 
-        # print "demod_samples:", demod_samples.size
-
         '''
         First, find the first sample index where you detect energy based on the
         moving average method described in the milestone 2 description.
@@ -53,10 +51,6 @@ class Receiver:
             if average > thresh:
                 energy_offset = index
                 break
-
-        # print "energy_offset:", energy_offset
-        # print "silence_bits:", energy_offset / self.spb
-        # print "demod_samples:", demod_samples[:energy_offset+self.spb]
 
         # if energy_offset couldn't be detected
         if energy_offset < 0:
@@ -78,32 +72,14 @@ class Receiver:
         preamble_samples = self.createPreambleSamples(preamble, one)
         preamble_length = preamble_samples.size
 
-        # print "preamble:", len(preamble)
-        # print "preamble_length:", preamble_length
-
         preamble_search = demod_samples[energy_offset:]
         preamble_search_size = preamble_search.size - preamble_length + 1
 
-        # print "demod_samples:", demod_samples.size / self.spb
-        # print "energy_offset:", energy_offset / self.spb
-        # print "preamble_search:", preamble_search.size / self.spb
-
         scores = []
         for i in range(preamble_search_size):
-            # print i, i+preamble_length
             samples = preamble_search[i : i+preamble_length]
             scores.append(self.crossCorrelation(samples, preamble_samples))
-            # print samples
-            # print preamble_samples
-            # print scores[i]
-            # break
         preamble_offset = numpy.argmax(scores)
-
-        # print "preamble_search:", preamble_search.size
-        # print "scores:", len(scores)
-        # print "preamble_offset:", preamble_offset
-        # print "amax:", numpy.amax(scores)
-        # print "index 0:", scores[0]
         
         '''
         [preamble_offset] is the additional amount of offset starting from [offset],
@@ -142,8 +118,6 @@ class Receiver:
                 print '*** ERROR: Error sampling in receiver. ***'
                 sys.exit(1)
         preamble_samples = numpy.array(samples)
-        # print "preamble_samples:", preamble_samples
-        # print "preamble_samples:", preamble_samples.size
 
         return preamble_samples
         
@@ -196,8 +170,6 @@ class Receiver:
             print '\tIncrease volume / turn on mic?'
             print '\tOr is there some other synchronization bug? ***'
             sys.exit(1)
-        # else:
-        #     print "SUCCESS"
 
         # set data bits
         data_bits_averaged = averages[preamble_length:]
@@ -207,7 +179,6 @@ class Receiver:
                 data_bits.append(1)
             elif bit < threshold:
                 data_bits.append(0)
-        # print data_bits
 
         return data_bits # without preamble
 
