@@ -57,19 +57,9 @@ class Receiver:
             index = i * self.spb
             sample = demod_samples[index : index+self.spb]
             average = self.averageSample(sample)
-
-            # print num_samples
-            # print sample
-            # print sample.size
-            # print average
-            # print index
-            print average
-
             if average > thresh:
                 energy_offset = index
                 break
-            # break # testing
-        print "energy_offset:", energy_offset
 
         # if energy_offset couldn't be detected
         if energy_offset < 0:
@@ -85,8 +75,34 @@ class Receiver:
         '''
 
         # cross-correlation check procedure to get preamble_offset
-        # preamble_offset = # fill in the result of the cross-correlation check 
-        preamble_offset = 0
+        # starting with preamble_search, compute cross correlation between preamble and signal
+        # preamble_offset is where correlation is highest
+        # preamble_offset = 0
+        preamble = [1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1]
+        preamble_samples = self.createPreambleSamples(preamble, one)
+        preamble_length = preamble_samples.size
+        preamble_search = demod_samples[energy_offset:]
+        preamble_search_size = preamble_search.size - preamble_length
+        # print preamble_length
+        # print preamble_search_size
+        scores = []
+        for i in range(preamble_search_size):
+            # print i, ":", i+preamble_length
+            # pass
+            # cross-correlation
+            sample = preamble_search[i : i+preamble_length]
+            scores.append(self.crossCorrelation(sample, preamble_samples))
+            # break
+        # print scores
+        # print numpy.amax(scores)
+        # max_score = numpy.amax(scores)
+        preamble_offset = numpy.argmax(scores)
+        # print preamble_search_size
+        # print len(scores)
+        # print max_score_index
+        print energy_offset
+        print preamble_offset
+        print energy_offset + preamble_offset
         
         '''
         [preamble_offset] is the additional amount of offset starting from [offset],
@@ -102,23 +118,41 @@ class Receiver:
         '''
 
         window = self.spb / 2
-        # average = numpy.average(sample[self.spb: self.spb+window])
         average = numpy.average(sample[window/2 : window/2+window])
-
-        # print average
-        # print sample
-        # print type(sample)
-        # print window
-        # print self.spb
-        # print self.spb + window
-        # print sample[self.spb : self.spb+window]
-        # print window/2
-        # print sample[window/2 : window/2+window]
-        # print len(sample[window/2 : window/2+window])
-        # print type(sample[self.spb: self.spb+window])
 
         return average
 
+    def crossCorrelation(self, samples, preamble_samples):
+        '''
+        Given samples, compute the cross-correlation between it and the preamble.
+        '''
+
+        # compute dot product
+        # score = 0
+        # print samples.size, preamble_samples.size
+        score = numpy.dot(samples, preamble_samples)
+        # print score
+        # print samples.size
+        # print preamble_samples.size
+
+        return score
+
+    def createPreambleSamples(self, preamble, one):
+        '''
+        Convert preamble bits to samples.
+        '''
+        preamble_bits = numpy.array(preamble)
+        samples_array = []
+        for databit in numpy.nditer(preamble_bits):
+            if (databit == 1):
+                samples_array.extend([one] * self.spb)
+            elif (databit == 0):
+                samples_array.extend([0] * self.spb)
+            else:
+                print "error in sampling"
+        preamble_samples = numpy.array(samples_array)
+
+        return preamble_samples
         
     def demap_and_check(self, demod_samples, preamble_start):
         '''
