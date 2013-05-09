@@ -126,15 +126,6 @@ if __name__ == '__main__':
     demod_samples=r.demodulate(mod_samples) # no bit errors, feed directly to receiver
     one, zero, thresh = r.detect_threshold(demod_samples)
     barker_start = r.detect_preamble(demod_samples, thresh, one)
-    
-
-    ### testing
-    # print barker_start
-    # print demod_samples.size
-    # print opt.spb
-    # print demod_samples.size - barker_start
-    # print (demod_samples.size - barker_start) / opt.spb # samples left after index for preamble
-
     rcdbits = r.demap_and_check(demod_samples, barker_start)
 
     # push into sink
