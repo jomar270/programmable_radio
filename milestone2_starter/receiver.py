@@ -43,8 +43,8 @@ class Receiver:
         # if so, return energy_offset of that offset
         # else, return energy_offset of -1
         energy_offset = -1
-        num_samples = demod_samples.size / self.spb
-        for i in range(num_samples):
+        num_bits = demod_samples.size / self.spb
+        for i in range(num_bits):
             index = i * self.spb
             sample = demod_samples[index : index+self.spb]
             average = self.averageSample(sample)
@@ -141,8 +141,57 @@ class Receiver:
         # use ave values and bit values of preamble to get threshold
         # demap
         # check preamble bits and continue if equal
-        data_bits = demod_samples
-        print "data_bits:", data_bits
+        samples = demod_samples[preamble_start:]
+        averages = []
+        num_bits = samples.size / self.spb
+        for i in range(num_bits):
+            index = i * self.spb
+            sample = samples[index : index+self.spb]
+            # print sample
+            averages.append(self.averageSample(sample))
+        # print averages
+        # print len(averages)
+
+        # get new threshold
+        preamble = [1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1]
+        preamble_length = len(preamble)
+        ones = []
+        zeros = []
+        for i in range(preamble_length):
+            if preamble[i] == 1:
+                ones.append(samples[i])
+            elif preamble[i] == 0:
+                zeros.append(samples[i])
+        # print ones
+        # print zeros
+        # print len(ones) + len(zeros)
+        threshold = (numpy.average(ones) + numpy.average(zeros)) / 2
+        # print threshold
+        
+        # check if preamble bits are equal to preamble using new threshold
+        preamble_test = averages[:preamble_length]
+        # print len(preamble_test)
+        preamble_mapped = []
+        for bit in preamble_test:
+            if bit > threshold:
+                preamble_mapped.append(1)
+            elif bit < threshold:
+                preamble_mapped.append(0)
+        # print preamble
+        # print preamble_mapped
+        # print numpy.array_equal(preamble, preamble_mapped)
+
+        data_bits = averages[preamble_length:]
+        print data_bits
+
+        if numpy.array_equal(preamble, preamble_mapped) == False:
+            print '*** ERROR: Could not detect preamble. ***'
+            print '\tIncrease volume / turn on mic?'
+            print '\tOr is there some other synchronization bug? ***'
+            sys.exit(1)
+
+        # data_bits = demod_samples
+        # print "data_bits:", data_bits
 
         return data_bits # without preamble
 
