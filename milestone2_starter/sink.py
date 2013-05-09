@@ -93,7 +93,11 @@ class Sink:
 
         # assigned values
         srctype = ''
-        l = (header_bits[0:2]).tolist()
+        # print type(header_bits)
+        # print header_bits
+        # print header_bits[0:2]
+        l = header_bits[0:2]
+        # l = (header_bits[0:2]).tolist()
         if l[0] == 0 and l[1] == 0:
             srctype = 'monotone'
         elif l[0] == 0 and l[1] == 1:
@@ -102,9 +106,13 @@ class Sink:
             srctype = 'image'
 
         # get header bits and payload length
+        # p = numpy.array(header_bits[2:])
         p = header_bits[2:]
-        p = p.astype(numpy.int64) # converted numpy array of float64 to int64 (so it's 1's and 0's)
+        # print p
+        # print "".join(str(int(math.ceil(i))) for i in p)
+        # p = p.astype(numpy.int64) # converted numpy array of float64 to int64 (so it's 1's and 0's)
         payload_length = int("".join(str(i) for i in p), 2)
+        # payload_length = int("".join(str(int(math.ceil(i))) for i in p), 2)
 
         # print values
         print '\tRecd header: ', header_bits

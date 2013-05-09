@@ -33,6 +33,8 @@ class Receiver:
         is crucial to a proper and correct synchronization w/ the xmitter.
         '''
 
+        # print "demod_samples:", demod_samples.size
+
         '''
         First, find the first sample index where you detect energy based on the
         moving average method described in the milestone 2 description.
@@ -51,6 +53,10 @@ class Receiver:
             if average > thresh:
                 energy_offset = index
                 break
+
+        # print "energy_offset:", energy_offset
+        # print "silence_bits:", energy_offset / self.spb
+        # print "demod_samples:", demod_samples[:energy_offset+self.spb]
 
         # if energy_offset couldn't be detected
         if energy_offset < 0:
@@ -71,13 +77,33 @@ class Receiver:
         preamble = [1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1]
         preamble_samples = self.createPreambleSamples(preamble, one)
         preamble_length = preamble_samples.size
+
+        # print "preamble:", len(preamble)
+        # print "preamble_length:", preamble_length
+
         preamble_search = demod_samples[energy_offset:]
-        preamble_search_size = preamble_search.size - preamble_length
+        preamble_search_size = preamble_search.size - preamble_length + 1
+
+        # print "demod_samples:", demod_samples.size / self.spb
+        # print "energy_offset:", energy_offset / self.spb
+        # print "preamble_search:", preamble_search.size / self.spb
+
         scores = []
         for i in range(preamble_search_size):
-            sample = preamble_search[i : i+preamble_length]
-            scores.append(self.crossCorrelation(sample, preamble_samples))
+            # print i, i+preamble_length
+            samples = preamble_search[i : i+preamble_length]
+            scores.append(self.crossCorrelation(samples, preamble_samples))
+            # print samples
+            # print preamble_samples
+            # print scores[i]
+            # break
         preamble_offset = numpy.argmax(scores)
+
+        # print "preamble_search:", preamble_search.size
+        # print "scores:", len(scores)
+        # print "preamble_offset:", preamble_offset
+        # print "amax:", numpy.amax(scores)
+        # print "index 0:", scores[0]
         
         '''
         [preamble_offset] is the additional amount of offset starting from [offset],
@@ -91,35 +117,33 @@ class Receiver:
         '''
         Get average of middle half of values in sample.
         '''
-
         window = self.spb / 2
         average = numpy.average(sample[window/2 : window/2+window])
-
         return average
 
     def crossCorrelation(self, samples, preamble_samples):
         '''
         Given samples, compute the cross-correlation between it and the preamble.
         '''
-
         score = numpy.dot(samples, preamble_samples)
-
         return score
 
     def createPreambleSamples(self, preamble, one):
         '''
         Convert preamble bits to samples.
         '''
-        preamble_bits = numpy.array(preamble)
-        samples_array = []
-        for databit in numpy.nditer(preamble_bits):
-            if (databit == 1):
-                samples_array.extend([one] * self.spb)
-            elif (databit == 0):
-                samples_array.extend([0] * self.spb)
+        samples = []
+        for bit in preamble:
+            if (bit == 1):
+                samples.extend([one] * self.spb)
+            elif (bit == 0):
+                samples.extend([0] * self.spb)
             else:
-                print "error in sampling"
-        preamble_samples = numpy.array(samples_array)
+                print '*** ERROR: Error sampling in receiver. ***'
+                sys.exit(1)
+        preamble_samples = numpy.array(samples)
+        # print "preamble_samples:", preamble_samples
+        # print "preamble_samples:", preamble_samples.size
 
         return preamble_samples
         
@@ -166,15 +190,24 @@ class Receiver:
             elif bit < threshold:
                 preamble_mapped.append(0)
 
-        # set data bits
-        data_bits = averages[preamble_length:]
-
         # exit if preamble doesn't match
         if numpy.array_equal(preamble, preamble_mapped) == False:
             print '*** ERROR: Could not detect preamble. ***'
             print '\tIncrease volume / turn on mic?'
             print '\tOr is there some other synchronization bug? ***'
             sys.exit(1)
+        # else:
+        #     print "SUCCESS"
+
+        # set data bits
+        data_bits_averaged = averages[preamble_length:]
+        data_bits = []
+        for bit in data_bits_averaged:
+            if bit > threshold:
+                data_bits.append(1)
+            elif bit < threshold:
+                data_bits.append(0)
+        # print data_bits
 
         return data_bits # without preamble
 

@@ -24,6 +24,11 @@ class Transmitter:
         preamble = [1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1]
         preamble_bits = numpy.array(preamble)
         databits_with_preamble = numpy.concatenate((silence_bits, preamble_bits, databits))
+        # print "silence_bits:", silence_bits.size
+        # print "preamble_bits:", preamble_bits.size
+        # print "databits:", databits.size
+        # print "databits_with_preamble:", databits_with_preamble
+        # print "databits_with_preamble:", databits_with_preamble.size
 
         return databits_with_preamble
 
@@ -43,8 +48,11 @@ class Transmitter:
             elif (databit == 0):
                 samples_array.extend([0] * self.spb)
             else:
-                print "error in sampling"
+                print '*** ERROR: Error sampling in transmitter. ***'
+                sys.exit(1)
         samples = numpy.array(samples_array)
+        # print "samples:", samples
+        # print "samples:", samples.size
 
         return samples
         

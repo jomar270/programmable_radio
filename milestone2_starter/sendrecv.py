@@ -123,7 +123,7 @@ if __name__ == '__main__':
     # make receiver
     r = Receiver(fc, opt.samplerate, opt.spb)
     # demod_samples = r.demodulate(samples_rx)
-    demod_samples=r.demodulate(mod_samples) # no bit errors, feed directly to receiver
+    demod_samples = r.demodulate(mod_samples) # no bit errors, feed directly to receiver
     one, zero, thresh = r.detect_threshold(demod_samples)
     barker_start = r.detect_preamble(demod_samples, thresh, one)
     rcdbits = r.demap_and_check(demod_samples, barker_start)
