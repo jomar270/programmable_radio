@@ -33,15 +33,6 @@ class Receiver:
         is crucial to a proper and correct synchronization w/ the xmitter.
         '''
 
-        # print "demod_samples:", demod_samples
-        # print "thresh:", thresh
-        # print "one:", one
-        # print "self.spb:", self.spb
-        # print type(demod_samples)
-        # print demod_samples.size # num samples
-        # print demod_samples.size / self.spb # actual bits
-        # print demod_samples.size / self.spb - 200 - 118 # actual data bits, minus silence and preamble
-
         '''
         First, find the first sample index where you detect energy based on the
         moving average method described in the milestone 2 description.
@@ -77,32 +68,16 @@ class Receiver:
         # cross-correlation check procedure to get preamble_offset
         # starting with preamble_search, compute cross correlation between preamble and signal
         # preamble_offset is where correlation is highest
-        # preamble_offset = 0
         preamble = [1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1]
         preamble_samples = self.createPreambleSamples(preamble, one)
         preamble_length = preamble_samples.size
         preamble_search = demod_samples[energy_offset:]
         preamble_search_size = preamble_search.size - preamble_length
-        # print preamble_length
-        # print preamble_search_size
         scores = []
         for i in range(preamble_search_size):
-            # print i, ":", i+preamble_length
-            # pass
-            # cross-correlation
             sample = preamble_search[i : i+preamble_length]
             scores.append(self.crossCorrelation(sample, preamble_samples))
-            # break
-        # print scores
-        # print numpy.amax(scores)
-        # max_score = numpy.amax(scores)
         preamble_offset = numpy.argmax(scores)
-        # print preamble_search_size
-        # print len(scores)
-        # print max_score_index
-        print energy_offset
-        print preamble_offset
-        print energy_offset + preamble_offset
         
         '''
         [preamble_offset] is the additional amount of offset starting from [offset],
@@ -127,13 +102,7 @@ class Receiver:
         Given samples, compute the cross-correlation between it and the preamble.
         '''
 
-        # compute dot product
-        # score = 0
-        # print samples.size, preamble_samples.size
         score = numpy.dot(samples, preamble_samples)
-        # print score
-        # print samples.size
-        # print preamble_samples.size
 
         return score
 
