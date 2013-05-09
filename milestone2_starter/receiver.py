@@ -136,21 +136,14 @@ class Receiver:
         Output is the array of data_bits (bits without preamble)
         '''
 
-        # demap demod_samples into bits
         # average values of midpoints in samples
-        # use ave values and bit values of preamble to get threshold
-        # demap
-        # check preamble bits and continue if equal
         samples = demod_samples[preamble_start:]
         averages = []
         num_bits = samples.size / self.spb
         for i in range(num_bits):
             index = i * self.spb
             sample = samples[index : index+self.spb]
-            # print sample
             averages.append(self.averageSample(sample))
-        # print averages
-        # print len(averages)
 
         # get new threshold
         preamble = [1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1]
@@ -162,36 +155,26 @@ class Receiver:
                 ones.append(samples[i])
             elif preamble[i] == 0:
                 zeros.append(samples[i])
-        # print ones
-        # print zeros
-        # print len(ones) + len(zeros)
         threshold = (numpy.average(ones) + numpy.average(zeros)) / 2
-        # print threshold
         
         # check if preamble bits are equal to preamble using new threshold
         preamble_test = averages[:preamble_length]
-        # print len(preamble_test)
         preamble_mapped = []
         for bit in preamble_test:
             if bit > threshold:
                 preamble_mapped.append(1)
             elif bit < threshold:
                 preamble_mapped.append(0)
-        # print preamble
-        # print preamble_mapped
-        # print numpy.array_equal(preamble, preamble_mapped)
 
+        # set data bits
         data_bits = averages[preamble_length:]
-        print data_bits
 
+        # exit if preamble doesn't match
         if numpy.array_equal(preamble, preamble_mapped) == False:
             print '*** ERROR: Could not detect preamble. ***'
             print '\tIncrease volume / turn on mic?'
             print '\tOr is there some other synchronization bug? ***'
             sys.exit(1)
-
-        # data_bits = demod_samples
-        # print "data_bits:", data_bits
 
         return data_bits # without preamble
 
