@@ -102,6 +102,8 @@ class Receiver:
         Given samples, compute the cross-correlation between it and the preamble.
         '''
         score = numpy.dot(samples, preamble_samples)
+        norm = numpy.linalg.norm(samples)
+        score /= norm
         return score
 
     def createPreambleSamples(self, preamble, one):

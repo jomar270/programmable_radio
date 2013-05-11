@@ -81,6 +81,11 @@ class Sink:
 
         # convert pixels to image and save
         imd = numpy.array(pixels)
+        # missing = 32 - len(imd[31])
+        # if (missing):
+        #     imd[31] += [255] * missing
+        #     print len(imd[31])
+        #     print imd[31]
         im = toimage(imd)
         im = im.convert('RGB')
         im.save(filename, 'PNG')
