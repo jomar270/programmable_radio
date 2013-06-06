@@ -13,9 +13,8 @@ def modulate(fc, samplerate, samples):
   mod_samples = numpy.empty(s)
   for n in range(s):
     carrier_signal_sample = math.cos(2 * math.pi * fc / samplerate * n)
-    # carrier_signal_sample = math.cos(fc / samplerate * n)
     mod_samples[n] = samples[n] * carrier_signal_sample
-    # mod_samples[n] = 0
+    # mod_samples[n] = 1
 
   return mod_samples
 
